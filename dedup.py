@@ -98,6 +98,7 @@ def write_scripts(cmp_list, rm_list):
     rm_file = "{0}/{1}".format(path, "rm.sh")
     with open(rm_file, 'a') as f:
         f.write("\n".join(rm_list))
+    print()
     for file in [cmp_file, rm_file]:
         print("{0}: file generated".format(file))
 
@@ -124,8 +125,6 @@ def go():
         files = db_files[key]  # files sharing the same hash
         n_files = len(files)
         if n_files > 1:
-            print()
-
             sources = set()
 
             if conf["keep_option"] == 'i':
@@ -154,6 +153,7 @@ def go():
             targets = set(range(n_files)) - sources
 
             if verbose:
+                print()
                 print("sources", sources)
                 print("targets", targets)
 
