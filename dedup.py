@@ -104,6 +104,8 @@ def write_scripts(cmp_list, rm_list):
 
 
 def go():
+    time_start = timeit.default_timer()
+
     for index, path in enumerate(paths):
         if verbose:
             print()
@@ -152,7 +154,7 @@ def go():
 
             targets = set(range(n_files)) - sources
 
-            if verbose:
+            if debug:
                 print()
                 print("sources", sources)
                 print("targets", targets)
@@ -175,5 +177,8 @@ def go():
         for line in rm_list:
             print(line)
 
+    time_elapsed = timeit.default_timer() - time_start
+
+    print("\nruntime: {0} seconds".format(round(time_elapsed, 2)))
 
 go()
