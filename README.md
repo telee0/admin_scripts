@@ -7,6 +7,8 @@ Deduplication of directories
 
 Use dedup.py to generate cmp.sh and rm.sh under a job directory, then run cmp.sh to make sure files are identical.
 
+Files are compared with both their hashes (sha256) and sizes.
+
 <pre>
 $ ./dedup.py 
 
