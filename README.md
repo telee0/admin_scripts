@@ -30,22 +30,22 @@ conf = {
 
 $ ./dedup.py 
 
-paths[0] = /a1/directory123
+paths[0] = /a1/data-2020
 
 files: 15333
 links: 0
 
-paths[1] = /a1/directory456
+paths[1] = /a1/data-2021
 
 files: 15333
 links: 0
 
-conf {'keep_option': 'z', 'keep_path_i': 1, 'skip_empty': 'skip'}
+conf {'keep_option': 'z', 'keep_path_i': [1], 'skip_empty': 'skip'}
 
-job-100604/cmp.sh: file generated
-job-100604/rm.sh: file generated
+job-100628/cmp.sh: file generated
+job-100628/rm.sh: file generated
 
-runtime: 1.38 seconds
+runtime: 1.44 seconds
 $ cd job-100604/
 $ sh cmp.sh
 $
