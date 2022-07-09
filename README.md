@@ -1,6 +1,16 @@
 # admin_scripts
 Scripts for administration
 
+Deduplication of directories
+
+** First thing first, use at your own risk.
+
+The long term goal is to have a simple script to consolidate all use cases.
+
+Probably a py script for these tasks, but I may switch to use file hashes with a db file, so no need to find candidates by names.
+
+---
+
 find.sh and cmp.sh are coupled scripts for dedup purpose.
 I am not sure if there exists any utility for this task now so keep these small scripts in my bin.
 
