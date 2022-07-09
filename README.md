@@ -29,7 +29,7 @@ $ sh /tmp/rm.sh
 
 ---
 
-dedup.sh and dedup.pl are similar but for a single directory
+dedup.sh and dedup.pl are similar but for a single directory.
 
 ** Again use at your own risk. I may make it safer with more checking and verbose to avoid misuse.
 
