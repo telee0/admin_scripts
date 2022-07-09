@@ -28,7 +28,7 @@ conf = {
     # 'keep_option': 'i',   # keep files in paths[i]
     # 'keep_option': 'a',   # keep the oldest files
     'keep_option': 'z',     # keep the newest files
-    'keep_path_i': 1,       # index of the path in paths[]
+    'keep_path_i': [1],     # indexes of the paths in paths[] to which files are kept
     'skip_empty': 'skip'    # skip empty files to save time
 }
 
@@ -131,7 +131,7 @@ def go():
 
             if conf["keep_option"] == 'i':
                 for index, file in enumerate(files):
-                    if file["index"] == conf["keep_path_i"]:
+                    if file["index"] in conf["keep_path_i"]:
                         sources.add(index)
             elif conf["keep_option"] == 'a':
                 oldest_i = 0
@@ -180,5 +180,6 @@ def go():
     time_elapsed = timeit.default_timer() - time_start
 
     print("\nruntime: {0} seconds".format(round(time_elapsed, 2)))
+
 
 go()
