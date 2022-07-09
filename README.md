@@ -13,6 +13,7 @@ Configuration is embedded in the script, but will later be separated.
 
 Multiple directories are supported.
 
+<pre>
 paths = [
     '/Data/A',
     '/Data/B',
@@ -27,8 +28,6 @@ conf = {
     'skip_empty': 'skip'    # skip empty files to save time
 }
 
-
-<pre>
 $ ./dedup.py 
 
 paths[0] = /a1/directory123
