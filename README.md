@@ -5,9 +5,31 @@ Deduplication of directories
 
 ** First thing first, use at your own risk.
 
-The long term goal is to have a simple script to consolidate all use cases.
+Use dedup.py to generate cmp.sh and rm.sh under a job directory, then run cmp.sh to make sure files are identical.
 
-Probably a py script for these tasks, but I may switch to use file hashes with a db file, so no need to find candidates by names.
+<pre>
+$ ./dedup.py 
+
+paths[0] = /a1/directory123
+
+files: 15333
+links: 0
+
+paths[1] = /a1/directory456
+
+files: 15333
+links: 0
+
+conf {'keep_option': 'z', 'keep_path_i': 1, 'skip_empty': 'skip'}
+
+job-100604/cmp.sh: file generated
+job-100604/rm.sh: file generated
+$ cd job-100604/
+$ sh cmp.sh
+$
+</pre>
+
+The following is no longer supported.
 
 ---
 
