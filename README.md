@@ -9,6 +9,25 @@ Use dedup.py to generate cmp.sh and rm.sh under a job directory, then run cmp.sh
 
 Files are compared with both their hashes (sha256) and sizes.
 
+Configuration is embedded in the script, but will later be separated.
+
+Multiple directories are supported.
+
+paths = [
+    '/Data/A',
+    '/Data/B',
+    '/Data/C'
+]
+
+conf = {
+    # 'keep_option': 'i',   # keep files in paths[i]
+    # 'keep_option': 'a',   # keep the oldest files
+    'keep_option': 'z',     # keep the newest files
+    'keep_path_i': 1,       # index of the path in paths[]
+    'skip_empty': 'skip'    # skip empty files to save time
+}
+
+
 <pre>
 $ ./dedup.py 
 
