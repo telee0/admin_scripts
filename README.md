@@ -24,7 +24,7 @@ conf = {
     # 'keep_option': 'i',   # keep files in paths[i]
     # 'keep_option': 'a',   # keep the oldest files
     'keep_option': 'z',     # keep the newest files
-    'keep_path_i': 1,       # index of the path in paths[]
+    'keep_path_i': [1],     # indexes of the paths in paths[], to which files are kept
     'skip_empty': 'skip'    # skip empty files to save time
 }
 
