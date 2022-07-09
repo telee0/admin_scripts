@@ -26,6 +26,8 @@ conf {'keep_option': 'z', 'keep_path_i': 1, 'skip_empty': 'skip'}
 
 job-100604/cmp.sh: file generated
 job-100604/rm.sh: file generated
+
+runtime: 1.38 seconds
 $ cd job-100604/
 $ sh cmp.sh
 $
