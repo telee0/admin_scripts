@@ -194,13 +194,19 @@ def go():
     print("\nruntime: {0} seconds".format(round(time_elapsed, 2)))
 
     print("""
-        run cmp.sh in the job directory to make sure files are identical
-        run rm.sh to delete duplicate files
-        when the files are deleted, paths may contain empty files and directories
-        use the following commands to clean it up
-        $ cd <target_dir>
-        $ find . -type f -empty -exec rm {} \;
-        $ find . -type d -empty -exec rmdir {} \;
+        # run cmp.sh in the job directory to make sure files are identical
+        # run rm.sh to delete duplicate files
+        
+        cd job
+        sh cmp.sh
+        sh rm.sh
+        
+        # when the files are deleted, paths may contain empty files and directories
+        # use the following commands to clean it up
+        
+        cd <path>
+        find . -type f -empty -exec rm {} \;
+        find . -type d -empty -exec rmdir {} \;
         """)
 
 go()
