@@ -28,12 +28,15 @@ conf = {
     # 'keep_option': 'i',   # keep files in paths[i]
     # 'keep_option': 'a',   # keep the oldest files
     'keep_option': 'z',     # keep the newest files
-    'keep_path_i': [1],     # indexes of the paths in paths[] to which files are kept
+    'keep_path_i': [1],     # indexes of the paths in paths[] for keep_option == i
     'skip_empty': 'skip'    # skip empty files to save time
 }
 
 db_files = {}
 
+
+#
+# https://stackoverflow.com/questions/22058048/hashing-a-file-in-python/44873382
 
 def gen_hash(file):
     h = hashlib.sha256()
@@ -48,7 +51,7 @@ def gen_hash(file):
     return h.hexdigest()
 
 
-def get_files(path, index):
+def scan_path(path, index):
     dirs, files, links = [], [], []
 
     if os.path.isfile(path):
@@ -57,6 +60,8 @@ def get_files(path, index):
         dirs.append(path)
     elif os.path.islink(path):
         links.append(path)
+
+    n_dirs = 0
 
     while len(dirs) > 0:
         d = dirs[0]
@@ -77,13 +82,14 @@ def get_files(path, index):
                 files.append(p)
             elif os.path.isdir(p):
                 dirs.append(p)
+                n_dirs += 1
             elif os.path.islink(p):
                 links.append(p)
             time_elapsed = timeit.default_timer() - time_start
             if time_elapsed > 1:
                 print(".", end="")
 
-    return files, links
+    return files, links, n_dirs
 
 
 def write_scripts(cmp_list, rm_list):
@@ -111,12 +117,13 @@ def go():
             print()
             print("paths[{0}] = {1}".format(index, path))
 
-        files, links = get_files(path, index)
+        files, links, n_dirs = scan_path(path, index)
 
         if verbose:
             print()
             print("files: {0}".format(len(files)))
             print("links: {0}".format(len(links)))
+            print("dirs: {0}".format(n_dirs))
             for file in files:
                 if debug:
                     print("{0}".format(file))
