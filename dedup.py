@@ -13,6 +13,7 @@ Script to identify duplicate files w/ names and hashes
 
 import os.path
 import hashlib
+import json
 import timeit
 from datetime import datetime
 from os import makedirs
@@ -25,9 +26,9 @@ paths = [
 ]
 
 conf = {
-    # 'keep_option': 'i',   # keep files in paths[i]
+    'keep_option': 'i',   # keep files in paths[i]
     # 'keep_option': 'a',   # keep the oldest files
-    'keep_option': 'z',     # keep the newest files
+    # 'keep_option': 'z',     # keep the newest files
     'keep_path_i': [1],     # indexes of the paths in paths[] for keep_option == i
     'skip_empty': 'skip'    # skip empty files to save time
 }
@@ -182,6 +183,10 @@ def go():
         print("\nconf", conf)
 
     write_scripts(cmp_list, rm_list)
+
+    f = open("db_files.json", 'a')
+    f.write(json.dumps(db_files, indent=4))
+    f.close()
 
     if debug:
         for line in cmp_list:
