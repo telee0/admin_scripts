@@ -17,9 +17,9 @@ Multiple directories are supported.
 
 <pre>
 paths = [
-    '/Data/A',
-    '/Data/B',
-    '/Data/C'
+    '/a1/backup-2021',
+    '/a2/backup-2021',
+    '/b1/backup-2021'
 ]
 
 cf = {
