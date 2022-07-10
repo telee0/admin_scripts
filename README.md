@@ -9,7 +9,7 @@ Use dedup.py to generate cmp.sh and rm.sh under a job directory, then run cmp.sh
 
 Files are compared with both their hashes (sha256) and sizes.
 
-Python dictionary db_files with hash[0:16]-size as keys. (pending) Options to scale include sqlite/redis/memcached/mysql/mongodb..
+Python dictionary db_files with hash[0:hash_length]-size as keys. (pending) Options to scale include sqlite/redis/memcached/mysql/mongodb..
 
 Configuration is embedded in the script, but will later be separated.
 
@@ -22,12 +22,14 @@ paths = [
     '/Data/C'
 ]
 
-conf = {
-    # 'keep_option': 'i',   # keep files in paths[i]
-    # 'keep_option': 'a',   # keep the oldest files
-    'keep_option': 'z',     # keep the newest files
-    'keep_path_i': [1],     # indexes of the paths in paths[] for keep_option == i
-    'skip_empty': 'skip'    # skip empty files to save time
+cf = {
+    'keep_option': 'i',         # keep files in paths[i]
+    # 'keep_option': 'a',       # keep the oldest files
+    # 'keep_option': 'z',       # keep the newest files
+    'keep_path_i': [1],         # indexes of the paths in paths[] for keep_option == i
+    'db_option': 'default',     # db option, default is python dictionary
+    'hash_length': 16,          # 16 hex chars from sha256 (256 bits/64 hex chars)
+    'skip_empty': 'skip'        # skip empty files to save time
 }
 
 $ ./dedup.py 
