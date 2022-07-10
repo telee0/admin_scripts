@@ -74,7 +74,7 @@ $ sh cmp.sh
 $
 </pre>
 
-The following is no longer supported.
+The following has no more development.
 
 ---
 
