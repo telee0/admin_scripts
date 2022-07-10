@@ -25,12 +25,14 @@ paths = [
     '/Downloads/UNIX'
 ]
 
-conf = {
-    'keep_option': 'i',   # keep files in paths[i]
-    # 'keep_option': 'a',   # keep the oldest files
-    # 'keep_option': 'z',     # keep the newest files
-    'keep_path_i': [1],     # indexes of the paths in paths[] for keep_option == i
-    'skip_empty': 'skip'    # skip empty files to save time
+cf = {
+    'keep_option': 'i',         # keep files in paths[i]
+    # 'keep_option': 'a',       # keep the oldest files
+    # 'keep_option': 'z',       # keep the newest files
+    'keep_path_i': [1],         # indexes of the paths in paths[] for keep_option == i
+    'db_option': 'default',     # db option, default is python dictionary
+    'hash_length': 16,          # 16 hex chars from sha256 (256 bits/64 hex chars)
+    'skip_empty': 'skip'        # skip empty files to save time
 }
 
 #
@@ -76,14 +78,15 @@ def scan_path(path, index):
             p = os.path.join(d, name)
             if os.path.isfile(p):
                 stat = os.stat(p)
-                if stat.st_size == 0 and conf["skip_empty"] == "skip":
+                if stat.st_size == 0 and cf["skip_empty"] == "skip":
                     continue  # skip empty files as they can be deleted efficiently with find
                 file_hash = gen_hash(p)
-                file_hash = "{0}-{1}".format(file_hash[:16], stat.st_size)
-                if file_hash not in db_files:
-                    db_files[file_hash] = []
-                db_files[file_hash].append({'index': index, 'path': p, 'mtime': stat.st_mtime})
-                # print("file metadata: ", stat)
+                key = "{0}-{1}".format(file_hash[:cf["hash_length"]], stat.st_size)
+                if key not in db_files:
+                    db_files[key] = []
+                db_files[key].append({'index': index, 'path': p, 'mtime': stat.st_mtime, 'hash': file_hash})
+                if debug:
+                    print("file metadata: ", stat)
                 files.append(p)
             elif os.path.isdir(p):
                 dirs.append(p)
@@ -104,14 +107,31 @@ def write_scripts(cmp_list, rm_list):
     ddhhmm = t[6:12]
     path = "job-{0}".format(ddhhmm)
     makedirs(path, exist_ok=True)
+
+    out_files = []
+
     cmp_file = "{0}/{1}".format(path, "cmp.sh")
     with open(cmp_file, 'a') as f:
         f.write("\n".join(cmp_list))
+    out_files.append(cmp_file)
+
     rm_file = "{0}/{1}".format(path, "rm.sh")
     with open(rm_file, 'a') as f:
         f.write("\n".join(rm_list))
+    out_files.append(rm_file)
+
+    db_file = "{0}/{1}".format(path, "db_files.json")
+    with open(db_file, 'a') as f:
+        f.write(json.dumps(db_files, indent=4))
+    out_files.append(db_file)
+
+    cf_file = "{0}/{1}".format(path, "cf.json")
+    with open(cf_file, 'a') as f:
+        f.write(json.dumps({"paths": paths, "cf": cf}, indent=4))
+    out_files.append(cf_file)
+
     print()
-    for file in [cmp_file, rm_file]:
+    for file in out_files:
         print("{0}: file generated".format(file))
 
 
@@ -142,24 +162,24 @@ def go():
         if n_files > 1:
             sources = set()
 
-            if conf["keep_option"] == 'i':
+            if cf["keep_option"] == 'i':
                 for index, file in enumerate(files):
-                    if file["index"] in conf["keep_path_i"]:
+                    if file["index"] in cf["keep_path_i"]:
                         sources.add(index)
-            elif conf["keep_option"] == 'a':
+            elif cf["keep_option"] == 'a':
                 oldest_i = 0
                 for index, file in enumerate(files):
                     if file["mtime"] < files[oldest_i]["mtime"]:
                         oldest_i = index
                 sources.add(oldest_i)
-            elif conf["keep_option"] == 'z':
+            elif cf["keep_option"] == 'z':
                 newest_i = 0
                 for index, file in enumerate(files):
                     if file["mtime"] > files[newest_i]["mtime"]:
                         newest_i = index
                 sources.add(newest_i)
             else:
-                print("{0}: unknown option to keep files".format(conf["keep_option"]))
+                print("{0}: unknown option to keep files".format(cf["keep_option"]))
                 exit(1)
 
             if len(sources) == 0:   # skip if no source all targets, because none left after deletion
@@ -180,13 +200,9 @@ def go():
                 rm_list.append('rm -f "{0}"'.format(file_target["path"]))
 
     if verbose:
-        print("\nconf", conf)
+        print("\ncf", cf)
 
     write_scripts(cmp_list, rm_list)
-
-    f = open("db_files.json", 'a')
-    f.write(json.dumps(db_files, indent=4))
-    f.close()
 
     if debug:
         for line in cmp_list:
