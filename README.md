@@ -32,25 +32,44 @@ cf = {
     'skip_empty': 'skip'        # skip empty files to save time
 }
 
-$ ./dedup.py 
+root@raspi:~/bin/admin_scripts# python3 dedup.py 
 
-paths[0] = /a1/data-2020
-.........
-files: 15333
+paths[0] = /a1/backup-2021
+...........................................
+files: 1312
 links: 0
+dirs: 30
 
-paths[1] = /a1/data-2021
-.........
-files: 15333
+paths[1] = /a2/backup-2021
+............................................................................................................
+files: 1312
 links: 0
+dirs: 30
 
-conf {'keep_option': 'z', 'keep_path_i': [1], 'skip_empty': 'skip'}
+cf {'keep_option': 'i', 'keep_path_i': [1], 'db_option': 'default', 'hash_length': 16, 'skip_empty': 'skip'}
 
-job-100628/cmp.sh: file generated
-job-100628/rm.sh: file generated
+job-110014/cmp.sh: file generated
+job-110014/rm.sh: file generated
+job-110014/db_files.json: file generated
+job-110014/cf.json: file generated
 
-runtime: 1.44 seconds
-$ cd job-100604/
+runtime: 196.19 seconds
+
+        # run cmp.sh in the job directory to make sure files are identical
+        # run rm.sh to delete duplicate files
+        
+        cd job
+        sh cmp.sh
+        sh rm.sh
+        
+        # when the files are deleted, paths may contain empty files and directories
+        # use the following commands to clean it up
+        
+        cd <path>
+        find . -type f -empty -exec rm {} \;
+        find . -type d -empty -exec rmdir {} \;
+        
+root@raspi:~/bin/admin_scripts# cd job-100604/
 $ sh cmp.sh
 $
 </pre>
