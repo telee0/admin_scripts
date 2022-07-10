@@ -91,7 +91,7 @@ def scan_path(path, index):
                 links.append(p)
             time_elapsed = timeit.default_timer() - time_start
             if time_elapsed > 1:
-                print(".", end="")
+                print(".", end="", flush=True)
                 time_start = timeit.default_timer()
 
     return files, links, n_dirs
