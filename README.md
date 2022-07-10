@@ -9,7 +9,7 @@ Use dedup.py to generate cmp.sh and rm.sh under a job directory, then run cmp.sh
 
 Files are compared with both their hashes (sha256) and sizes.
 
-Python dictionary db_files with hash[0:hash_length]-size as keys. (pending) Options to scale include sqlite/redis/memcached/mysql/mongodb..
+Python dictionary db_files with hash[0:hash_length]-size as keys. Options to be explored include sqlite/redis/memcached/mysql/mongodb..
 
 Configuration is embedded in the script, but will later be separated.
 
