@@ -32,6 +32,10 @@ conf = {
     'skip_empty': 'skip'    # skip empty files to save time
 }
 
+#
+# dictionary db_files with hash[0:16]-size as keys.
+# (pending) Options to scale include sqlite/redis/memcached/mysql/mongodb..
+
 db_files = {}
 
 
