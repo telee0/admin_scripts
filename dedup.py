@@ -66,12 +66,12 @@ def scan_path(path, index):
         links.append(path)
 
     n_dirs = 0
+    time_start = timeit.default_timer()
 
     while len(dirs) > 0:
         d = dirs[0]
         dirs.pop(0)
         for name in os.listdir(d):
-            time_start = timeit.default_timer()
             p = os.path.join(d, name)
             if os.path.isfile(p):
                 stat = os.stat(p)
@@ -92,6 +92,7 @@ def scan_path(path, index):
             time_elapsed = timeit.default_timer() - time_start
             if time_elapsed > 1:
                 print(".", end="")
+                time_start = timeit.default_timer()
 
     return files, links, n_dirs
 
@@ -192,5 +193,14 @@ def go():
 
     print("\nruntime: {0} seconds".format(round(time_elapsed, 2)))
 
+    print("""
+        run cmp.sh in the job directory to make sure files are identical
+        run rm.sh to delete duplicate files
+        when the files are deleted, paths may contain empty files and directories
+        use the following commands to clean it up
+        $ cd <target_dir>
+        $ find . -type f -empty -exec rm {} \;
+        $ find . -type d -empty -exec rmdir {} \;
+        """)
 
 go()
