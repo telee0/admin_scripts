@@ -19,7 +19,7 @@ Multiple directories are supported.
 paths = [
     '/a1/backup-2021',
     '/a2/backup-2021',
-    '/b1/backup-2021'
+    # '/b1/backup-2021'
 ]
 
 cf = {
@@ -29,7 +29,7 @@ cf = {
     'keep_path_i': [1],         # indexes of the paths in paths[] for keep_option == i
     'db_option': 'default',     # db option, default is python dictionary
     'hash_length': 16,          # 16 hex chars from sha256 (256 bits/64 hex chars)
-    'skip_empty': 'skip'        # skip empty files to save time
+    'skip_empty': True          # skip empty files to save time
 }
 
 root@raspi:~/bin/admin_scripts# python3 dedup.py 
