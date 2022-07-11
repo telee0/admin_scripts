@@ -26,13 +26,21 @@ paths = [
 ]
 
 cf = {
-    'keep_option': 'i',         # keep files in paths[i]
-    # 'keep_option': 'a',       # keep the oldest files
+    # 'keep_option': 'i',         # keep files in paths[i]
+    'keep_option': 'a',       # keep the oldest files
     # 'keep_option': 'z',       # keep the newest files
     'keep_path_i': [1],         # indexes of the paths in paths[] for keep_option == i
     'db_option': 'default',     # db option, default is python dictionary
     'hash_length': 16,          # 16 hex chars from sha256 (256 bits/64 hex chars)
     'skip_empty': 'skip'        # skip empty files to save time
+}
+
+job_files = {
+    'cmp_list': 'cmp.sh',
+    'rm_list': 'rm.sh',
+    'db_files': 'db_files.json',
+    'paths': 'paths.json',
+    'cf': 'cf.json',
 }
 
 #
@@ -101,38 +109,28 @@ def scan_path(path, index):
     return files, links, n_dirs
 
 
-def write_scripts(cmp_list, rm_list):
+def write_job_files(cmd_lists):
+    cmp_list, rm_list = cmd_lists
+
+    if len(rm_list) == 0:
+        print("rm_list: nothing to delete per config")
+        return ""
+
     t = datetime.now().strftime('%Y%m%d%H%M')
-    # yyyymm = t[0:6]
     ddhhmm = t[6:12]
-    path = "job-{0}".format(ddhhmm)
-    makedirs(path, exist_ok=True)
+    job_dir = "job-{0}".format(ddhhmm)
+    makedirs(job_dir, exist_ok=True)
 
-    out_files = []
-
-    cmp_file = "{0}/{1}".format(path, "cmp.sh")
-    with open(cmp_file, 'a') as f:
-        f.write("\n".join(cmp_list))
-    out_files.append(cmp_file)
-
-    rm_file = "{0}/{1}".format(path, "rm.sh")
-    with open(rm_file, 'a') as f:
-        f.write("\n".join(rm_list))
-    out_files.append(rm_file)
-
-    db_file = "{0}/{1}".format(path, "db_files.json")
-    with open(db_file, 'a') as f:
-        f.write(json.dumps(db_files, indent=4))
-    out_files.append(db_file)
-
-    cf_file = "{0}/{1}".format(path, "cf.json")
-    with open(cf_file, 'a') as f:
-        f.write(json.dumps({"paths": paths, "cf": cf}, indent=4))
-    out_files.append(cf_file)
-
-    print()
-    for file in out_files:
+    for name, file in job_files.items():
+        file = "{0}/{1}".format(job_dir, file)
+        with open(file, 'a') as f:
+            if file.endswith(".json"):
+                f.write(json.dumps(eval(name), indent=4))
+            else:
+                f.write("\n".join(eval(name)))
         print("{0}: file generated".format(file))
+
+    return job_dir
 
 
 def go():
@@ -200,9 +198,9 @@ def go():
                 rm_list.append('rm -f "{0}"'.format(file_target["path"]))
 
     if verbose:
-        print("\ncf", cf)
+        print("\n{0}\n".format(cf))
 
-    write_scripts(cmp_list, rm_list)
+    job_dir = write_job_files([cmp_list, rm_list])
 
     if debug:
         for line in cmp_list:
@@ -214,20 +212,31 @@ def go():
 
     print("\nruntime: {0} seconds".format(round(time_elapsed, 2)))
 
-    print("""
-        # run cmp.sh in the job directory to make sure files are identical
-        # run rm.sh to delete duplicate files
-        
-        cd job
-        sh cmp.sh
-        sh rm.sh
-        
-        # when the files are deleted, paths may contain empty files and directories
-        # use the following commands to clean it up
-        
-        cd <path>
-        find . -type f -empty -exec rm {} \;
-        find . -type d -empty -exec rmdir {} \;
-        """)
+    if job_dir:
+        path = paths[0]
+        if cf['keep_option'] == 'i':
+            for i in range(1, len(paths)):
+                if i not in cf['keep_path_i']:
+                    path = paths[i]
+                    break
 
-go()
+        message = """
+    # run cmp.sh in the job directory to make sure files are identical
+    # run rm.sh to delete duplicate files
+
+    cd %s
+    sh cmp.sh
+    sh rm.sh
+
+    # when the files are deleted, paths may contain empty files and directories
+    # use the following commands to clean it up
+
+    cd %s
+    find . -type f -empty -exec rm {} \\;
+    find . -type d -empty -exec rmdir {} \\;""" % (job_dir, path)
+
+        print(message)
+
+
+if __name__ == "__main__":
+    go()
