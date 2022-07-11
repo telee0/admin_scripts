@@ -26,13 +26,13 @@ paths = [
 ]
 
 cf = {
-    # 'keep_option': 'i',         # keep files in paths[i]
-    'keep_option': 'a',       # keep the oldest files
+    # 'keep_option': 'i',       # keep files in paths[i]
+    'keep_option': 'a',         # keep the oldest files
     # 'keep_option': 'z',       # keep the newest files
     'keep_path_i': [1],         # indexes of the paths in paths[] for keep_option == i
     'db_option': 'default',     # db option, default is python dictionary
     'hash_length': 16,          # 16 hex chars from sha256 (256 bits/64 hex chars)
-    'skip_empty': 'skip'        # skip empty files to save time
+    'skip_empty': True          # skip empty files to save time
 }
 
 job_files = {
@@ -86,8 +86,8 @@ def scan_path(path, index):
             p = os.path.join(d, name)
             if os.path.isfile(p):
                 stat = os.stat(p)
-                if stat.st_size == 0 and cf["skip_empty"] == "skip":
-                    continue  # skip empty files as they can be deleted efficiently with find
+                if stat.st_size == 0 and cf["skip_empty"]:
+                    continue  # skip empty files as they can be deleted efficiently with utilities like find
                 file_hash = gen_hash(p)
                 key = "{0}-{1}".format(file_hash[:cf["hash_length"]], stat.st_size)
                 if key not in db_files:
