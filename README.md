@@ -55,21 +55,21 @@ job-110014/cf.json: file generated
 
 runtime: 196.19 seconds
 
-        # run cmp.sh in the job directory to make sure files are identical
-        # run rm.sh to delete duplicate files
+    # run cmp.sh in the job directory to make sure files are identical
+    # run rm.sh to delete duplicate files
+
+    cd job-110014
+    sh cmp.sh
+    sh rm.sh
+
+    # when the files are deleted, paths may contain empty files and directories
+    # use the following commands to clean it up
+
+    cd /a1/backup-2021
+    find . -type f -empty -exec rm {} \;
+    find . -type d -empty -exec rmdir {} \;
         
-        cd job
-        sh cmp.sh
-        sh rm.sh
-        
-        # when the files are deleted, paths may contain empty files and directories
-        # use the following commands to clean it up
-        
-        cd <path>
-        find . -type f -empty -exec rm {} \;
-        find . -type d -empty -exec rmdir {} \;
-        
-root@raspi:~/bin/admin_scripts# cd job-100604/
+root@raspi:~/bin/admin_scripts# cd job-110014/
 $ sh cmp.sh
 $
 </pre>
