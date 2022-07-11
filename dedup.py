@@ -26,8 +26,8 @@ paths = [
 ]
 
 cf = {
-    # 'keep_option': 'i',       # keep files in paths[i]
-    'keep_option': 'a',         # keep the oldest files
+    # 'keep_option': 'i',         # keep files in paths[i]
+    'keep_option': 'a',       # keep the oldest files
     # 'keep_option': 'z',       # keep the newest files
     'keep_path_i': [1],         # indexes of the paths in paths[] for keep_option == i
     'db_option': 'default',     # db option, default is python dictionary
@@ -77,7 +77,8 @@ def scan_path(path, index):
         links.append(path)
 
     n_dirs = 0
-    time_start = timeit.default_timer()
+    t0 = timeit.default_timer()
+    ti = t0
 
     while len(dirs) > 0:
         d = dirs[0]
@@ -101,10 +102,12 @@ def scan_path(path, index):
                 n_dirs += 1
             elif os.path.islink(p):
                 links.append(p)
-            time_elapsed = timeit.default_timer() - time_start
+            time_elapsed = timeit.default_timer() - ti
             if time_elapsed > 1:
                 print(".", end="", flush=True)
-                time_start = timeit.default_timer()
+                ti = timeit.default_timer()
+
+    print(" %.2fs" % (timeit.default_timer() - t0), end="")
 
     return files, links, n_dirs
 
@@ -128,7 +131,7 @@ def write_job_files(cmd_lists):
                 f.write(json.dumps(eval(name), indent=4))
             else:
                 f.write("\n".join(eval(name)))
-        print("{0}: file generated".format(file))
+        print("{0:<25} .. generated".format(file))
 
     return job_dir
 
@@ -136,10 +139,16 @@ def write_job_files(cmd_lists):
 def go():
     time_start = timeit.default_timer()
 
+    pre = ""
+    if cf['keep_option'] == 'i':
+        pre = " (preserved)"
+
     for index, path in enumerate(paths):
         if verbose:
-            print()
-            print("paths[{0}] = {1}".format(index, path))
+            if index in cf["keep_path_i"]:
+                print("\npaths[{0}] = {1}{2}".format(index, path, pre))
+            else:
+                print("\npaths[{0}] = {1}".format(index, path))
 
         files, links, n_dirs = scan_path(path, index)
 
@@ -210,7 +219,7 @@ def go():
 
     time_elapsed = timeit.default_timer() - time_start
 
-    print("\nruntime: {0} seconds".format(round(time_elapsed, 2)))
+    print("\nruntime: %.2f seconds" % time_elapsed)
 
     if job_dir:
         path = paths[0]
