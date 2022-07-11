@@ -148,8 +148,8 @@ def go():
             print("files: {0}".format(len(files)))
             print("links: {0}".format(len(links)))
             print("dirs: {0}".format(n_dirs))
-            for file in files:
-                if debug:
+            if debug:
+                for file in files:
                     print("{0}".format(file))
 
     cmp_list, rm_list = [], []
