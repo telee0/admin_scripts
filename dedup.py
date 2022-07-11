@@ -44,8 +44,8 @@ job_files = {
 }
 
 #
-# dictionary db_files with hash[0:16]-size as keys.
-# (pending) Options to scale include sqlite/redis/memcached/mysql/mongodb..
+# dictionary db_files with hash[0:hash_length]-size as keys.
+# Options to be explored include sqlite/redis/memcached/mysql/mongodb..
 
 db_files = {}
 
