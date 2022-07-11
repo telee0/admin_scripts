@@ -180,10 +180,10 @@ def go():
                 print("{0}: unknown option to keep files".format(cf["keep_option"]))
                 exit(1)
 
-            if len(sources) == 0:   # skip if no source all targets, because none left after deletion
-                continue            # change keep_option to a/z to keep files by mtime
-
             targets = set(range(n_files)) - sources
+
+            if not sources or not targets:  # skip if either sources or targets is empty
+                continue                    # change keep_option to a/z to keep files by mtime
 
             if debug:
                 print()
@@ -198,7 +198,7 @@ def go():
                 rm_list.append('rm -f "{0}"'.format(file_target["path"]))
 
     if verbose:
-        print("\n{0}\n".format(cf))
+        print("\ncf {0}\n".format(cf))
 
     job_dir = write_job_files([cmp_list, rm_list])
 
