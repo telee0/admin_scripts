@@ -206,6 +206,14 @@ def go():
                     cmp_list.append('cmp "{0}" "{1}"'.format(file_source["path"], file_target["path"]))
                 rm_list.append('rm -f "{0}"'.format(file_target["path"]))
 
+    for list_ in [cmp_list, rm_list]:
+        n = len(list_)
+        s = n // 10
+        if n > 999:
+            for i in range(s, n, s):
+                list_[i] = list_[i] + "\necho -n ..{:.0%}".format(i / n)
+            list_[-1] = list_[-1] + "\necho -n ..100%"
+
     if verbose:
         print("\ncf {0}\n".format(cf))
 
