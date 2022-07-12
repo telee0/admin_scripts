@@ -212,7 +212,7 @@ def go():
         if n > 999:
             for i in range(s, n, s):
                 list_[i] = list_[i] + "\necho -n ..{:.0%}".format(i / n)
-            list_[-1] = list_[-1] + "\necho -n ..100%"
+            list_[-1] = list_[-1] + "\necho done"
 
     if verbose:
         print("\ncf {0}\n".format(cf))
