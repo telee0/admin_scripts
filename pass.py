@@ -9,8 +9,7 @@ Script to generate random passwords
 
 """
 
-import os
-import random
+import secrets
 import string
 import argparse
 import hashlib
@@ -33,26 +32,20 @@ cf = {
 
 
 def print_charset():
-    for key, value in cf.items():
-        if key.startswith('set'):
-            i = key[3:]
+    for param, value in cf.items():
+        if param.startswith('set'):
+            i = param[3:]
             print("charset {0}: {1}".format(i, value))
 
 
 def gen_string(params):
     charset = cf['set' + str(params.charset_id)]
-    length = len(charset)
-    n = params.length
-    s = ""
-    for _ in range(n):
-        i = random.randint(0, length - 1)
-        s += charset[i]
-    return s
+    return ''.join(secrets.choice(charset) for _ in range(params.length))
 
 
 def gen_hash(password):
-    salt = os.urandom(32)
-    key = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
+    salt = secrets.token_bytes(32)
+    key = hashlib.pbkdf2_hmac('sha512', password.encode('utf-8'), salt, 100000)
     return salt, key
 
 
@@ -79,5 +72,5 @@ if __name__ == '__main__':
     print("pass: {0}".format(args.password))
 
     if args.verbose:
-        salt, key = gen_hash(args.password)
-        print("salt {0}\nkey {1}".format(salt, key))
+        salt_, key_ = gen_hash(args.password)
+        print("salt {0}\nkey {1}".format(salt_, key_))
