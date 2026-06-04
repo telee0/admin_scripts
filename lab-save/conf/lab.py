@@ -1,5 +1,6 @@
 """
 
+lab_save v2.0 [20260602]
 lab_save v1.0 [20231120]
 
 Script to repeat CLI commands over SSH
@@ -12,200 +13,165 @@ https://pexpect.readthedocs.io/en/stable/index.html
 """
 
 cf = {
-    'dgs': ['arista', 'cisco', 'ixia', 'nexus', 'pa'],  # order matters. ixia has nothing defined so will be skipped.
+    'device_groups': ['pa'],
+    # 'device_groups': ['arista', 'cisco', 'ixia', 'nexus', 'pa'],  # ixia has nothing defined so will be skipped
 
-    'scp_host': '10.129.123.123',   # SCP host for config files, global setting
-    'tftp_host': '10.129.123.123',  # TFTP host for config files, global setting
+    'scp_host': '10.137.126.146',   # SCP host for config files, currently not used
+    # 'tftp_host': '10.137.126.146',  # TFTP host for config files
+    'tftp_host': '192.168.2.23',  # TFTP host for config files
 
-    'username': 'admin',         # sensitive and not exported, default admin
+    'username': 'pocadmin',         # sensitive and not exported, default admin
     'password': '',                 # sensitive and not exported, either here or through the env variable cf['passenv']
-    'pass_env': 'PASS',             # name of the environment variable for the password
+    'passenv': 'PASS',              # name of the environment variable for the password
 
-    'prompt': {                     # regex so prefixed with an 'r'
+    'prompt': {                     # regex for the prompt
         'arista': [
-            # r'.*assword:\s+',
             r'.*>',
             r'.*#',
         ],
         'cisco': [
-            # r'.*Password:\s+',
             r'.*#',
         ],
         'nexus': [
-            # r'.*Password:\s+',
             r'.*#\s+',
         ],
         'pa': [
-            # r'.*Password:\s+',
             r'.*>\s+$',
             r'.*#\s+$',
         ],
     },
 
-    'conn_timeout': 3,           # connection timeout
-    'time_delay': 1,             # initial delay in seconds
-    'cli_timeout': 10,           # > 0 or the cli will not expect a prompt
+    'conn_timeout': 50,             # connection timeout
+    'time_delay': 1,                # initial delay in seconds
+    'cli_timeout': 10,              # > 0 or the cli will not expect a prompt
+    'tty_size': (200, 40),          # terminal size for screenful CLI output capture
 
-    'job_dir':  'job-{}',        # job folder
-    'log_file': 'job-{}.log',    # job log
-    'cnf_file': 'cnf-{}.json',   # config dump
-    'cli_file': 'cli-{}.log',    # CLI output
-    'sta_file': 'sta-{}.json',   # stats
-    'log_buf_size': 99,          # log buffer size in message count
+    'job_dir':  'job-{}',           # job folder
+    'log_file': 'job-{}.log',       # job log
+    'cnf_file': 'cf-{}.json',       # config dump
+    'cli_file': 'cli-{}.log',       # CLI output
+    'sta_file': 'sta-{}.json',      # stats
+    'csv_file': 'dg-{}.csv',       # csv files
+    'ctx_file': 'ctx-{}.json',      # runtime states
+
+    'max_workers': 10,
+
+    'version': '2.0',
 
     'verbose': True,
     'debug': False,
 }
 
-# CLI tuples: (command_line, substitutions, timeout, new_prompt)
+#
+# Device specific configuration
 #
 
-dg = 'arista'
-if dg in cf['dgs']:
-    cf.update({
-        dg: {
-            'scp_host': cf['scp_host'],        # SCP host for config files
-            'tftp_host': cf['tftp_host'],      # TFTP host for config files
-            'host_file': f"conf/{dg}.txt",     # list of devices
-            'username': cf['username'],        # sensitive and not exported, default cf['admin']
-            'password': cf['password'],        # sensitive and not exported, either here or through the env variable
-            'pass_env': 'ARISTA_PASS',         # name of the environment variable for the password
-            'time_delay': cf['time_delay'],    # initial delay in seconds
-            'cli_timeout': cf['cli_timeout'],  # > 0 or the cli will not expect a prompt
-            'cli': [
-                'enable',
-                ('terminal length 0', None, 0, cf['prompt'][dg][1],),
-                'show clock',
-                'show ver',
-                ('copy running-config startup-config', None, 120,),
-                ('copy running-config tftp://%s/%s', ['tftp_host', 'file'],),
-                ('show clock', None, 10,),
-                'exit',
-            ]
+cf.update({
+    'arista': {
+        'host_file': 'conf/arista.txt',
+        'username': cf['username'],        # sensitive and not exported, default cf['admin']
+        'password': cf['password'],        # sensitive and not exported, either here or through the env variable
+        'passenv': 'ARISTA_PASS',         # name of the environment variable for the password
+        'time_delay': cf['time_delay'],    # initial delay in seconds
+        'cli_timeout': cf['cli_timeout'],  # > 0 or the cli will not expect a prompt
+        'cli': [
+            'enable',
+            ('terminal length 0', 0, cf['prompt']['arista'][1]),
+            'show clock',
+            'show ver',
+            ('copy running-config startup-config', 120),
+            'copy running-config tftp://{tftp_host}/{file}',
+            ('show clock', 10),
+            'exit',
+        ],
+        'attrs': {
+            'serial_number': r'Serial number:\s+(\S+)',
+            'hardware': r'Arista\s+(\S+)',
+            'software_version': r'Software image version:\s+(\S+)',
         }
-    })
+    },
 
-dg = 'cisco'
-if dg in cf['dgs']:
-    cf.update({
-        dg: {
-            'scp_host': cf['scp_host'],        # SCP host for config files
-            'tftp_host': cf['tftp_host'],      # TFTP host for config files
-            'host_file': f"conf/{dg}.txt",     # list of devices
-            'username': cf['username'],        # sensitive and not exported, default cf['admin']
-            'password': cf['password'],        # sensitive and not exported, either here or through the env variable
-            'pass_env': "CISCO_PASS",          # name of the environment variable for the password
-            'time_delay': cf['time_delay'],    # initial delay in seconds
-            'cli_timeout': cf['cli_timeout'],  # > 0 or the cli will not expect a prompt
-            'cli': [
-                'terminal length 0',
-                'show clock',
-                'show ver',
-                # ('write', None, 300,),
-                ('copy running-config startup-config', None, 0,), ('', None, 0,),  # just proceed without waiting
-                ('copy running-config tftp://%s/%s', ['tftp_host', 'file'], 0), ('', None, 0,), ('', None, 0,),
-                ('show clock', None, 10,),
-                'exit',
-            ]
-        },
-    })
-
-dg = 'ixia'
-if dg in cf['dgs']:
-    cf.update({
-        dg: None,
-    })
-
-dg = 'nexus'
-if dg in cf['dgs']:
-    cf.update({
-        dg: {
-            'scp_host': cf['scp_host'],        # SCP host for config files
-            'tftp_host': cf['tftp_host'],      # TFTP host for config files
-            'host_file': f"conf/{dg}.txt",     # list of devices
-            'username': cf['username'],        # sensitive and not exported, default cf['admin']
-            'password': cf['password'],        # sensitive and not exported, either here or through the env variable
-            'pass_env': f"NEXUS_PASS",         # name of the environment variable for the password
-            'time_delay': cf['time_delay'],    # initial delay in seconds
-            'cli_timeout': cf['cli_timeout'],  #
-            'cli': [
-                'terminal length 0',
-                'show clock',
-                'show ver',
-                ('copy running-config startup-config', None, 120),
-                ('copy running-config tftp://%s/%s vrf management', ['tftp_host', 'file'],),
-                ('show clock', None, 10,),
-                'exit',
-            ]
-        },
-    })
-
-dg = 'pa'
-if dg in cf['dgs']:
-    cf.update({
-        dg: {
-            'scp_host': cf['scp_host'],        # SCP host for config files
-            'tftp_host': cf['tftp_host'],      # TFTP host for config files
-            'host_file': f"conf/{dg}.txt",     # list of devices
-            'username': cf['username'],        # sensitive and not exported, default cf['admin']
-            'password': cf['password'],        # sensitive and not exported, either here or through the env variable
-            'pass_env': 'PA_PASS',             # name of the environment variable for the password
-            'time_delay': cf['time_delay'],    #
-            'cli_timeout': cf['cli_timeout'],  #
-            'cli': [
-                'show clock',
-                'set cli pager off',
-                'show system info',
-                'configure',
-                ('commit', None, 300, cf['prompt']['pa'][1],),
-                ('save config to %s', ['file'],),
-                'exit',
-                ('show jobs all', None, 30, cf['prompt']['pa'][0]),
-                ('tftp export configuration from %s to %s', ['file', 'tftp_host'],),
-                'show clock',
-                'exit',
-            ]
+    'cisco': {
+        'host_file': 'conf/cisco.txt',
+        'username': cf['username'],        # sensitive and not exported, default cf['admin']
+        'password': cf['password'],        # sensitive and not exported, either here or through the env variable
+        'passenv': "CISCO_PASS",          # name of the environment variable for the password
+        'time_delay': cf['time_delay'],    # initial delay in seconds
+        'cli_timeout': cf['cli_timeout'],  # > 0 or the cli will not expect a prompt
+        'cli': [
+            'terminal length 0',
+            'show clock',
+            'show ver',
+            # ('write', 300),
+            ('copy running-config startup-config', 0,), ('', 0,),  # just proceed without waiting
+            ('copy running-config tftp://{tftp_host}/{file}', 0), ('', 0), ('', 0),
+            ('show clock', 10),
+            'exit',
+        ],
+        'attrs': {
+            'model_number': r'Model number\s+:\s+(\S+)',
+            'serial_number': r'System serial number\s+:\s+(\S+)',
         }
-    })
+    },
 
-# dictionary of search patterns for runtime metrics such as allocated sessions, packet rate, etc.
-# These search patterns are regex for locating target numbers from output files
-#
-metrics = {
-    #
-    # Arista specific
-    #
-    'arista_serial_number':       (r'Serial number:\s+(\S+)', 'str'),
-    #
-    # Cisco specific
-    #
-    'cisco_model_number':         (r'Model Number:\s+(\S+)', 'str'),
-    'cisco_serial_number':        (r'System Serial Number:\s+(\S+)', 'str'),
-    #
-    # Nexus specific
-    #
-    'nexus_device_name':         (r'Device name:\s+(\S+)', 'str'),
-    #
-    # PA specific
-    #
-    'pa_hostname':            (r'hostname:\s+(\S+)', 'str'),
-    'pa_ip-address':          (r'ip-address:\s+(\S+)', 'str'),
-    'pa_model':               (r'model:\s+(\S+)', 'str'),
-    'pa_serial':              (r'serial:\s+(\S+)', 'str'),
-    'pa_sw-version':          (r'sw-version:\s+(\S+)', 'str'),
-    #
-    # the following remain from the previous use cases
-    #
-    'activeTCPSessions':   r'active TCP sessions:\s+(\d+)',
-    'activeUDPSessions':   r'active UDP sessions:\s+(\d+)',
-    'allocatedSessions':   r'allocated sessions:\s+(\d+)',
-    'connectionRate':      r'connection establish rate:\s+(\d+) cps',
-    'eth1_1BytesReceived': r'bytes received\s+(\d+)',
-    'packetRate':          r'Packet rate:\s+(\d+)\/s',
-    'vpnIPSecTunnels':     r'Total (\d+) tunnels found',
-    # 'test': r'abcde(\d)',
-    # 'test': r'(\wa\w+)\s',
-}
+    'ixia': None,
+
+    'nexus': {
+        'host_file': 'conf/nexus.txt',
+        'username': cf['username'],        # sensitive and not exported, default cf['admin']
+        'password': cf['password'],        # sensitive and not exported, either here or through the env variable
+        'passenv': f"NEXUS_PASS",         # name of the environment variable for the password
+        'time_delay': cf['time_delay'],    # initial delay in seconds
+        'cli_timeout': cf['cli_timeout'],  #
+        'cli': [
+            'terminal length 0',
+            'show clock',
+            'show ver',
+            ('copy running-config startup-config', 120),
+            'copy running-config tftp://{tftp_host}/{file} vrf management',
+            ('show clock', 10),
+            'exit',
+        ],
+        'attrs': {
+            'device_name': r'Device name:\s+(\S+)',
+            'hardware': r'cisco\s+\S+\s+(C\S+)\s+Chassis',
+            'nxos': r'NXOS: version\s+(\S+)',
+            'serial': r'Processor Board ID\s+(\S+)',
+        }
+
+    },
+
+    'pa': {
+        'host_file': 'conf/pa.txt',
+        'username': cf['username'],        # sensitive and not exported, default cf['admin']
+        'password': cf['password'],        # sensitive and not exported, either here or through the env variable
+        'passenv': 'PA_PASS',             # name of the environment variable for the password
+        'time_delay': cf['time_delay'],    #
+        'cli_timeout': cf['cli_timeout'],  #
+        'cli': [
+            'show clock',
+            'set cli pager off',
+            'show system info',
+            'configure',
+            ('commit', 300, cf['prompt']['pa'][1]),
+            'save config to {file}',
+            'exit',
+            ('show jobs all', 30, cf['prompt']['pa'][0]),
+            'tftp export configuration from {file} to {tftp_host}',
+            'show clock',
+            'exit',
+        ],
+        'attrs': {
+            'hostname': r'hostname:\s+(\S+)',
+            'ip-address': r'ip-address:\s+(\S+)',
+            'model': r'model:\s+(\S+)',
+            'serial': r'serial:\s+(\S+)',
+            'sw-version': r'sw-version:\s+(\S+)',
+            'app-version': r'app-version:\s+(\S+)',
+        }
+    },
+})
+
 
 if __name__ == '__main__':
     pass
