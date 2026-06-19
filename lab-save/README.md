@@ -7,3 +7,9 @@ A Python-based lab administration tool designed to automate common network opera
 - Configuration standardization: Applies consistent settings across devices, such as DNS servers, Panorama management IPs, and hostnames.
 - Parallel execution support: Enables efficient bulk device operations through concurrent processing using Python ThreadPoolExecutor.
 - Support a variety of device types, including Arista switches, Catalyst switches, Nexus switches, PAN-OS devices (NGFW and Panorama)
+
+The tool consists of the following set of files.
+
+- lab-save.py	- main script
+- conf/lab.py	- configuration file
+- conf/*.txt		- device lists, each belonging to a device type with applicable configuration
