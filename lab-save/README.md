@@ -37,11 +37,11 @@ Access credentials are managed as follows:
 - If different usernames are required per device type, they can be defined in the configuration file using the username key within each device group block.
 - Passwords are shared within a device group and should be supplied via environment variables for security reasons. The corresponding environment variable name is defined in the configuration file using the passenv key.
 
-Ensure that all required access credentials are properly configured on the target devices prior to execution. For security purposes, contact the script maintainer to obtain or verify the required credentials.
+Ensure that all required access credentials are properly configured on the target devices prior to execution. For security concerns, contact the administrator to obtain or verify the required credentials.
 
 ### Public key authenticaton
 
-- New scripts will support public key authentication.
+- New scripts support public key authentication.
 - They can authenticate either with username/password or username/private key
 - All devices of the same device group share the same username/password and username/key pair. 
 - If the public key has not yet been deployed on a device, the scripts will fall back to authenticate with username/password. 
