@@ -37,7 +37,7 @@ Access credentials are managed as follows:
 - If different usernames are required per device type, they can be defined in the configuration file using the username key within each device group block.
 - Passwords are shared within a device group and should be supplied via environment variables for security reasons. The corresponding environment variable name is defined in the configuration file using the passenv key.
 
-Ensure that all required access credentials are properly configured on the target devices prior to execution. For security concerns, contact the administrator to obtain or verify the required credentials.
+Ensure that all required access credentials are properly configured on the target devices prior to execution.
 
 ### Public key authenticaton
 
