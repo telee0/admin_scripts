@@ -13,3 +13,8 @@ The tool consists of the following set of files.
 - lab-save.py	- main script
 - conf/lab.py	- configuration file
 - conf/*.txt		- device lists, each belonging to a device type with applicable configuration
+
+### Parallel execution support
+
+This configuration key controls the concurrency setting by allowing a larger pool of threads to interact with target devices. Set this large enough for the script to complete the tasks more quickly.  
+'max_workers': 50
