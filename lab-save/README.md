@@ -23,3 +23,18 @@ This configuration key controls the concurrency setting by allowing a larger poo
 'max_workers': 50
 
 </pre>
+
+### Device lists
+
+Device IPs are organized by device type.
+
+The # character is used for comments; any content after # on a line is ignored by the script.
+
+Device-specific settings—such as CLI commands and regex patterns used to extract attributes from CLI output—apply only within their respective device group.
+
+Access credentials are managed as follows:
+- The login username provided via the command-line argument (-u) is shared across all devices by default.
+- If different usernames are required per device type, they can be defined in the configuration file using the username key within each device group block.
+- Passwords are shared within a device group and should be supplied via environment variables for security reasons. The corresponding environment variable name is defined in the configuration file using the passenv key.
+
+Ensure that all required access credentials are properly configured on the target devices prior to execution. For security purposes, contact the script maintainer to obtain or verify the required credentials.
