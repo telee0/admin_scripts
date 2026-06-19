@@ -17,11 +17,11 @@ cf = {
     'device_groups': ['pa'],
     # 'device_groups': ['arista', 'cisco', 'ixia', 'nexus', 'pa'],  # ixia has nothing defined so will be skipped
 
-    'scp_host': '10.137.126.146',   # SCP host for config files, currently not used
+    'scp_host': '192.168.1.1',   # SCP host for config files, currently not used
     # 'tftp_host': '10.137.126.146',  # TFTP host for config files
-    'tftp_host': '192.168.2.23',    # TFTP host for config files
+    'tftp_host': '192.168.1.1',    # TFTP host for config files
 
-    'username': 'pocadmin',         # sensitive and not exported, default admin
+    'username': 'admin',            # sensitive and not exported, default admin
     'password': '',                 # sensitive and not exported, either here or through the env variable cf['passenv']
     'passenv': 'PASS',              # name of the environment variable for the password
 
