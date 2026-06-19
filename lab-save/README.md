@@ -16,5 +16,10 @@ The tool consists of the following set of files.
 
 ### Parallel execution support
 
-This configuration key controls the concurrency setting by allowing a larger pool of threads to interact with target devices. Set this large enough for the script to complete the tasks more quickly.  
+This configuration key controls the concurrency setting by allowing a larger pool of threads to interact with target devices. Set this large enough for the script to complete the tasks more quickly.
+
+<pre>
+  
 'max_workers': 50
+
+</pre>
